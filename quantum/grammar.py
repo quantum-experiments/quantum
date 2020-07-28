@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 from parsimonious.grammar import Grammar
 from parsimonious.nodes import NodeVisitor
 
@@ -23,30 +25,33 @@ grammar = Grammar(r"""
     """
 )
 
+Circuit = namedtuple("Circuit", ["gates", "qubits"])
+Gate = namedtuple("Gate", ["gate", "args"])
+
 class QuantumVisitor(NodeVisitor):
     def visit_quantum(self, node, visited_children):
-        _result, = visited_children
-        result = { "gates": None, "qubits": None }
-        result.update(_result)
-        return result
+        result, = visited_children
+        return Circuit(
+            gates=result.gates,
+            qubits=result.qubits
+        )
 
     def visit_circuit(self, node, visited_children):
         kronecker, _, qubits = visited_children
-        result = {
-            "gates": kronecker.get("gates"), 
-            "qubits": qubits.get("qubits")
-            }
+        result = Circuit(
+            gates=kronecker.gates, 
+            qubits=qubits.qubits)
         return result
 
     def visit_operation(self, node, visited_children):
         gate, _, args, _ = visited_children
-        return {"gate": gate, "args": args}
+        return Gate(gate=gate, args=args)
 
     def visit_kronecker(self, node, visited_children):
         opkron, operation = visited_children
         if opkron:
-            return {"gates": opkron + [operation]}
-        return {"gates": [operation]}
+            return Circuit(gates=opkron + [operation], qubits=None)
+        return Circuit(gates=[operation], qubits=None)
 
     def visit_opkron(self, node, visited_children):
         operation, _ = visited_children
@@ -58,7 +63,7 @@ class QuantumVisitor(NodeVisitor):
 
     def visit_qubits(self, node, visited_children):
         _, value, _ = node.children
-        return {"qubits": value.text}
+        return Circuit(gates=None, qubits=value.text)
     
     def generic_visit(self, node, visited_children):
         """ The generic visit method. """
