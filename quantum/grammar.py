@@ -45,13 +45,16 @@ class QuantumVisitor(NodeVisitor):
 
     def visit_operation(self, node, visited_children):
         gate, _, args, _ = visited_children
-        return Gate(gate=gate, args=args)
+        return Gate(gate=gate, args=tuple(args))
 
     def visit_kronecker(self, node, visited_children):
         opkron, operation = visited_children
         if opkron:
-            return Circuit(gates=opkron + [operation], qubits=None)
-        return Circuit(gates=[operation], qubits=None)
+            return Circuit(
+                gates=tuple(opkron + [operation]), 
+                qubits=None
+            )
+        return Circuit(gates=(operation, ), qubits=None)
 
     def visit_opkron(self, node, visited_children):
         operation, _ = visited_children
