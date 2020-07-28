@@ -26,7 +26,7 @@ grammar = Grammar(r"""
 )
 
 Circuit = namedtuple("Circuit", ["gates", "qubits"])
-Gate = namedtuple("Gate", ["gate", "args"])
+Gate = namedtuple("Gate", ["name", "args"])
 
 class QuantumVisitor(NodeVisitor):
     """ Node visitor for Quantum grammar """
@@ -46,7 +46,7 @@ class QuantumVisitor(NodeVisitor):
 
     def visit_operation(self, node, visited_children):
         gate, _, args, _ = visited_children
-        return Gate(gate=gate, args=tuple(args))
+        return Gate(name=gate, args=tuple(args))
 
     def visit_kronecker(self, node, visited_children):
         opkron, operation = visited_children
