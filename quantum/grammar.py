@@ -19,7 +19,7 @@ grammar = Grammar(r"""
     arg = ind sep*
     sep = ","
     ind = ~"[0-9]+"
-    qubits_value = ~"[0-1]*"
+    qubits_value = ~"[-+0-1]*"
     qubits_open = "|"
     qubits_close = ">"
     """

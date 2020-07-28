@@ -28,3 +28,9 @@ def test_grammar4():
     assert parsed.gates[1].gate == "CX"
     assert parsed.gates[1].args == ("01", )
     assert parsed.qubits == "00"
+
+def test_grammar5():
+    text = "|-+>"
+    parsed = QuantumVisitor().visit(grammar.parse(text))
+    assert parsed.gates == None
+    assert parsed.qubits == "-+"
