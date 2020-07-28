@@ -29,6 +29,7 @@ Circuit = namedtuple("Circuit", ["gates", "qubits"])
 Gate = namedtuple("Gate", ["gate", "args"])
 
 class QuantumVisitor(NodeVisitor):
+    """ Node visitor for Quantum grammar """
     def visit_quantum(self, node, visited_children):
         result, = visited_children
         return Circuit(
@@ -71,3 +72,8 @@ class QuantumVisitor(NodeVisitor):
     def generic_visit(self, node, visited_children):
         """ The generic visit method. """
         return visited_children or node.text
+
+
+def parse(command: str) -> Circuit:
+    """ Parse given quantum command """
+    return QuantumVisitor().visit(grammar.parse(command))
