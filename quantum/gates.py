@@ -1,4 +1,5 @@
 import numpy as np
+
 from quantum.states import zero, one
 
 def _gate(*values):
@@ -15,3 +16,16 @@ Z = _gate((1, 0), (0, -1))
 P0 = np.kron(zero, zero.T)
 P1 = np.kron(one, one.T)
 CNOT01 = np.kron(P0, I) + np.kron(P1, X)
+CNOT10 = np.kron(I, P0) + np.kron(X, P1)
+
+name_gates = {
+    "I": I,
+    "H": H,
+    "X": X,
+    "Y": Y,
+    "Z": Z,
+    "P0": P0,
+    "P1": P1,
+    "CNOT01": CNOT01,
+    "CNOT10": CNOT10,
+}

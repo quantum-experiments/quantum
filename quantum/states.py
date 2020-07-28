@@ -10,3 +10,10 @@ zero = _state(1,0)
 one = _state(0,1)
 plus = _norm(_state(1,1))
 minus = _norm(_state(1,-1))
+
+bit_states = {
+    "0": zero,
+    "1": one,
+    "+": plus,
+    "-": minus,
+}
