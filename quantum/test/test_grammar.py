@@ -1,7 +1,7 @@
 from quantum.grammar import grammar, QuantumVisitor
 
 def test_grammar1():
-    text = "H[0]"
+    text = "H0"
     parsed = QuantumVisitor().visit(grammar.parse(text))
     (gate,) = parsed.gates[0]
     assert gate.name == "H"
@@ -15,7 +15,7 @@ def test_grammar2():
     assert parsed.target.bitstring == "00"
 
 def test_grammar3():
-    text = "H[0] |00>"
+    text = "H0 |00>"
     parsed = QuantumVisitor().visit(grammar.parse(text))
     (gate,) = parsed.gates[0]
     assert gate.name == "H"
@@ -23,7 +23,7 @@ def test_grammar3():
     assert parsed.target.bitstring == "00"
 
 def test_grammar4():
-    text = "CX[01] H[0] |00>"
+    text = "CX01 H0 |00>"
     parsed = QuantumVisitor().visit(grammar.parse(text))
     (gate,) = parsed.gates[1]
     assert gate.name == "CX"
@@ -35,7 +35,7 @@ def test_grammar4():
     assert target.bitstring == "00"
 
 def test_grammar5():
-    text = "CX[01] X[1] H[0].X[1] |00>"
+    text = "CX01 X1 H0.X1 |00>"
     parsed = QuantumVisitor().visit(grammar.parse(text))
 
     (gate,) = parsed.gates[2]

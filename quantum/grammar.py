@@ -11,11 +11,9 @@ grammar = Grammar(r"""
     opkron = operation kron
     space = " "
     kron = "."
-    operation = gate lbra args rbra
+    operation = gate args
     qubits = qubits_open qubits_value qubits_close
     gate = ~"[A-Z]+"
-    lbra = "["
-    rbra = "]"
     args = arg+
     arg = ind sep*
     sep = ","
@@ -49,7 +47,7 @@ class QuantumVisitor(NodeVisitor):
         return target
 
     def visit_operation(self, node, visited_children):
-        gate, _, args, _ = visited_children
+        gate, args = visited_children
         return Gate(name=gate, args=tuple(args))
 
     def visit_kronecker(self, node, visited_children):
