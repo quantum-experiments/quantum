@@ -36,17 +36,16 @@ class QuantumVisitor(NodeVisitor):
         circs, (target,) = visited_children
         if len(circs) > 0:
             kronecker, _ = circs[-1]
-            result = Circuit(
-                gates=kronecker.gates,
-                target=target.target)
+            gates = kronecker.gates
 
             for circ in circs[::-1][1:]:
                 kronecker, _ = circ
-                result = Circuit(
-                    gates=kronecker.gates, 
-                    target=result)
+                gates += kronecker.gates
 
-            return result
+            return Circuit(
+                gates=gates,
+                target=target.target)
+
         return target
 
     def visit_operation(self, node, visited_children):
@@ -57,10 +56,10 @@ class QuantumVisitor(NodeVisitor):
         opkron, operation = visited_children
         if opkron:
             return Circuit(
-                gates=tuple(opkron + [operation]), 
+                gates=[tuple(opkron + [operation])], 
                 target=None
             )
-        return Circuit(gates=(operation, ), target=None)
+        return Circuit(gates=[(operation, )], target=None)
 
     def visit_opkron(self, node, visited_children):
         operation, _ = visited_children
