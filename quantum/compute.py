@@ -17,12 +17,6 @@ def _get_gate(name: str, args: tuple):
         return name_gates.get(name + control_target)
     return name_gates.get(name)
 
-def single_qubit_op(gate_operation: np.ndarray, qubit_num: int, num_qubits: int) -> np.ndarray:
-    gate_seq = [I] * num_qubits
-    gate_seq[qubit_num] = gate_operation
-    op = reduce(np.kron, gate_seq)
-    return op
-
 def parse_unitary(circuit):
     # chain together single qubit gate ops into one transformation
     num_qubits = len(circuit.qubits)
