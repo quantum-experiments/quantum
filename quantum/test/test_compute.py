@@ -11,5 +11,5 @@ text = "H(0).X(1) |00>"
 text = "|-+>"
 
 def test_compute():
-    text = "X(0) |00>"
-    assert evaluate(text) == np.kron(one, zero)
+    text = "X0 |00>"
+    assert np.all(evaluate(text) == np.kron(one, zero))
