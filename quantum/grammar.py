@@ -4,17 +4,18 @@ from parsimonious.grammar import Grammar
 from parsimonious.nodes import NodeVisitor
 
 grammar = Grammar(r"""
-    quantum = circuit / kronecker / qubits
-    circuit = kronecker space qubits
+    circuit = circ* target
+    circ = kronecker space
+    target = kronecker / qubits / circuit
     kronecker = opkron* operation
     opkron = operation kron
     space = " "
     kron = "."
-    operation = gate lpar args rpar
+    operation = gate lbra args rbra
     qubits = qubits_open qubits_value qubits_close
     gate = ~"[A-Z]+"
-    lpar = "("
-    rpar = ")"
+    lbra = "["
+    rbra = "]"
     args = arg+
     arg = ind sep*
     sep = ","
@@ -25,24 +26,28 @@ grammar = Grammar(r"""
     """
 )
 
-Circuit = namedtuple("Circuit", ["gates", "qubits"])
+Qubits = namedtuple("Qubits", ["bitstring"])
+Circuit = namedtuple("Circuit", ["gates", "target"])
 Gate = namedtuple("Gate", ["name", "args"])
 
 class QuantumVisitor(NodeVisitor):
     """ Node visitor for Quantum grammar """
-    def visit_quantum(self, node, visited_children):
-        result, = visited_children
-        return Circuit(
-            gates=result.gates,
-            qubits=result.qubits
-        )
-
     def visit_circuit(self, node, visited_children):
-        kronecker, _, qubits = visited_children
-        result = Circuit(
-            gates=kronecker.gates, 
-            qubits=qubits.qubits)
-        return result
+        circs, (target,) = visited_children
+        if len(circs) > 0:
+            kronecker, _ = circs[-1]
+            result = Circuit(
+                gates=kronecker.gates,
+                target=target.target)
+
+            for circ in circs[::-1][1:]:
+                kronecker, _ = circ
+                result = Circuit(
+                    gates=kronecker.gates, 
+                    target=result)
+
+            return result
+        return target
 
     def visit_operation(self, node, visited_children):
         gate, _, args, _ = visited_children
@@ -53,9 +58,9 @@ class QuantumVisitor(NodeVisitor):
         if opkron:
             return Circuit(
                 gates=tuple(opkron + [operation]), 
-                qubits=None
+                target=None
             )
-        return Circuit(gates=(operation, ), qubits=None)
+        return Circuit(gates=(operation, ), target=None)
 
     def visit_opkron(self, node, visited_children):
         operation, _ = visited_children
@@ -67,7 +72,7 @@ class QuantumVisitor(NodeVisitor):
 
     def visit_qubits(self, node, visited_children):
         _, value, _ = node.children
-        return Circuit(gates=None, qubits=value.text)
+        return Circuit(gates=None, target=Qubits(bitstring=value.text))
     
     def generic_visit(self, node, visited_children):
         """ The generic visit method. """
