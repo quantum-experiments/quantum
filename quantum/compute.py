@@ -16,7 +16,7 @@ def gate_by_name(name: str, args: tuple):
     """ get gate matrix representation by gate name and input arguments """
     if name == "CX":
         name = "CNOT"
-    if name == "CNOT":
+    elif name == "CNOT":
         control_target, = args
         return name_gates.get(name + control_target)
     return name_gates.get(name)
@@ -25,7 +25,8 @@ def _list_str(values):
     return ", ".join([str(val) for val in values])
 
 def gates_to_unitary(gates, num_qubits):
-    """ chain together single qubit gate ops into one unitary transformation """
+    """ Get unitary transformation for one or more gates """
+    # chain together single qubit gate ops into one unitary transformation
     if all([len(gate.args)==1 and len(gate.args[0]) == 1 for gate in gates]):
         gate_seq = []
         gates_by_indices = {int(gate.args[0]): gate for gate in gates}
@@ -33,10 +34,13 @@ def gates_to_unitary(gates, num_qubits):
         for n in range(num_qubits):
             if n in gates_by_indices:
                 gate = gates_by_indices.get(n)
-                gate_seq.append(gate_by_name(gate.name, gate.args))
+                gate_matrix = gate_by_name(gate.name, gate.args)
+                assert gate_matrix is not None, f"Gate {gate.name} with args {gate.args} not found."
+                gate_seq.append(gate_matrix)
             else:
                 gate_seq.append(I)
         return reduce(np.kron, gate_seq)
+    # single gate
     gate, = gates
     return gate_by_name(gate.name, gate.args)
 

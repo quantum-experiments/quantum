@@ -58,3 +58,11 @@ def test_grammar6():
     parsed = QuantumVisitor().visit(grammar.parse(text))
     assert parsed.gates == None
     assert parsed.target.bitstring == "-+"
+
+def test_grammar7():
+    text = "FOO |0>"
+    parsed = QuantumVisitor().visit(grammar.parse(text))
+    gate, = parsed.gates[0]
+    assert gate.name == "FOO"
+    assert gate.args == ()
+    assert parsed.target.bitstring == "0"
