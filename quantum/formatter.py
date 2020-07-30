@@ -45,8 +45,12 @@ def pretty_print(no_sqrt: bool = False):
         return np.printoptions(formatter={'float': lambda x: pprint_fraction(x, no_sqrt)})
     return np.printoptions(formatter={'float': pprint_fraction})
 
-class pndarray(np.ndarray):
+class farray(np.ndarray):
     """ ndarray but with pretty printing of fractions and sqrt values """
     def __repr__(self):
         with pretty_print():
-            return str(self)
+            return super(farray, self).__repr__()
+
+    def __str__(self):
+        with pretty_print():
+            return super(farray, self).__str__()
