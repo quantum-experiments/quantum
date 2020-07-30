@@ -24,8 +24,6 @@ name_gates = {
     "X": X,
     "Y": Y,
     "Z": Z,
-    "P0": P0,
-    "P1": P1,
     "CNOT01": CNOT01,
     "CNOT10": CNOT10,
 }

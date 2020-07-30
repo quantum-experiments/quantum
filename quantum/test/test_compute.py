@@ -3,11 +3,11 @@ import numpy as np
 from quantum.compute import evaluate
 from quantum.states import one, zero
 
-text = "H(0)"
+text = "H0"
 text = "|00>"
-text = "H(0) |00>"
-text = "CX(01).H(0) |00>"
-text = "H(0).X(1) |00>"
+text = "H0 |00>"
+text = "CX01 H0 |00>"
+text = "H0.X1 |00>"
 text = "|-+>"
 
 def test_compute():

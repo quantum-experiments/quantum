@@ -18,8 +18,14 @@ def gate_by_name(name: str, args: tuple):
         name = "CNOT"
     elif name == "CNOT":
         control_target, = args
-        return name_gates.get(name + control_target)
-    return name_gates.get(name)
+        gate_matrix = name_gates.get(name + control_target)
+    else:
+        gate_matrix = name_gates.get(name)
+
+    if gate_matrix is not None:
+        return gate_matrix
+
+    raise ValueError(f"Gate {name} with args {args} not found.")
 
 def _list_str(values):
     return ", ".join([str(val) for val in values])
@@ -34,13 +40,12 @@ def gates_to_unitary(gates, num_qubits):
         for n in range(num_qubits):
             if n in gates_by_indices:
                 gate = gates_by_indices.get(n)
-                gate_matrix = gate_by_name(gate.name, gate.args)
-                assert gate_matrix is not None, f"Gate {gate.name} with args {gate.args} not found."
-                gate_seq.append(gate_matrix)
+                gate_seq.append(gate_by_name(gate.name, gate.args))
             else:
                 gate_seq.append(I)
         return reduce(np.kron, gate_seq)
     # single gate
+    assert len(gates) == 1, f"Cannot get unitary transform for gates {gates} with {num_qubits} qubits."
     gate, = gates
     return gate_by_name(gate.name, gate.args)
 
