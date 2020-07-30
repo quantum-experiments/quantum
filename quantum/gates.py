@@ -29,3 +29,9 @@ name_gates = {
     "CNOT01": CNOT01,
     "CNOT10": CNOT10,
 }
+
+def add_gate(label: str, value: np.ndarray, overwrite: bool = False):
+    if label not in name_gates or overwrite:
+        name_gates[label] = value
+    else:
+        raise ValueError("Gate {label} already exists.")
