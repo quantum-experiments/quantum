@@ -35,9 +35,9 @@ def pprint_fraction(value: float, no_sqrt: bool = False):
         key=lambda x: len(x)
     )
 
-def pretty_print(no_sqrt: bool = False):
+def pretty_farray(no_sqrt: bool = False):
     """
-    context manager for pretty printing fractions
+    context manager for pretty printing arrays with fractions and sqrt terms
 
     :no_sqrt: flag for not including sqrt terms
     """
@@ -48,9 +48,20 @@ def pretty_print(no_sqrt: bool = False):
 class farray(np.ndarray):
     """ ndarray but with pretty printing of fractions and sqrt values """
     def __repr__(self):
-        with pretty_print():
+        with pretty_farray():
             return super(farray, self).__repr__()
 
     def __str__(self):
-        with pretty_print():
+        with pretty_farray():
             return super(farray, self).__str__()
+
+def _to_qbit(value: int, norm: float, num_qubits: int):
+    bin_repr = np.binary_repr(value, num_qubits)
+    return f"{pprint_fraction(norm)} |{bin_repr}>"
+
+def pretty_dirac(state: np.ndarray):
+    """ pretty print for dirac notation of states """
+    length, width = np.shape(state)
+    num_qubits = int(np.log2(length))
+    assert width == 1, f"Array shape {(length, width)} not supported"
+    return " + ".join(_to_qbit(val, norm, num_qubits) for val, norm in enumerate(state.flatten()) if norm != 0)
