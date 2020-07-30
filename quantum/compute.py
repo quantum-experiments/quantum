@@ -5,7 +5,7 @@ import numpy as np
 from quantum.grammar import parse, Qubits
 from quantum.states import bit_states
 from quantum.gates import name_gates, I
-from quantum.formatter import pndarray
+from quantum.formatter import farray
 
 def bitstring_to_vector(qubits: str):
     """ Get kronecker product of basis vectors for given bitstring """
@@ -49,16 +49,25 @@ def gates_to_unitary(gates, num_qubits):
     gate, = gates
     return gate_by_name(gate.name, gate.args)
 
+def all_args(circuit):
+    """ get a flat list of all arguments passed to the circuit """
+    return [arg for gates in circuit.gates for gate in gates for arg in gate.args]
+
 def evaluate_circuit(circuit):
     """ evaluate circuit and return qubit result """
-    assert circuit.target.bitstring != "", "Cannot evaluate circuit: no qubits given"
-    qubits = bitstring_to_vector(circuit.target.bitstring)
-    if circuit.gates is None:
+    if circuit.target is not None and circuit.target.bitstring != "":
+        qubits = bitstring_to_vector(circuit.target.bitstring)
+        if circuit.gates is None:
+            return qubits
+        num_qubits = len(circuit.target.bitstring)
+        for gates in circuit.gates:
+            qubits = np.dot(gates_to_unitary(gates, num_qubits), qubits)
         return qubits
-    num_qubits = len(circuit.target.bitstring)
-    for gates in circuit.gates:
-        qubits = np.dot(gates_to_unitary(gates, num_qubits), qubits)
-    return qubits
+    
+    if circuit.gates is not None:
+        args = [int(arg) for arg in all_args(circuit)]
+        num_qubits = max(args) + 1
+        return np.array([gates_to_unitary(gates, num_qubits) for gates in circuit.gates])
 
 def evaluate(line, pretty_print: bool = True):
     """
@@ -69,5 +78,5 @@ def evaluate(line, pretty_print: bool = True):
     circuit = parse(line)
     result = evaluate_circuit(circuit)
     if pretty_print:
-        return result.view(pndarray)
+        return result.view(farray)
     return result

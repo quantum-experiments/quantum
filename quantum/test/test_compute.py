@@ -3,6 +3,7 @@ import numpy as np
 
 from quantum.compute import evaluate
 from quantum.states import one, zero, plus, minus, _norm
+from quantum.gates import X, H
 
 @pytest.mark.parametrize("text, state", [
     ("X0 |00>", np.kron(one, zero)),
@@ -12,6 +13,8 @@ from quantum.states import one, zero, plus, minus, _norm
     ("CX01 H0 |00>", _norm(np.kron(zero, zero) + np.kron(one, one))),
     ("H0.X1 |00>", np.kron(plus, one)),
     ("|-+>", np.kron(minus, plus)),
+    ("H0", H),
+    ("X0 H0 X0 X0", np.array([X, X, H, X]))
 ])
 def test_compute(text, state):
     assert np.all(evaluate(text) == state)
