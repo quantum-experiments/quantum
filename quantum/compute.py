@@ -16,7 +16,7 @@ def gate_by_name(name: str, args: tuple):
     """ get gate matrix representation by gate name and input arguments """
     if name == "CX":
         name = "CNOT"
-    elif name == "CNOT":
+    if name == "CNOT":
         control_target, = args
         gate_matrix = name_gates.get(name + control_target)
     else:
