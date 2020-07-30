@@ -1,8 +1,8 @@
-from quantum.grammar import grammar, QuantumVisitor
+from quantum.grammar import parse
 
 def test_grammar1():
     text = "H0"
-    parsed = QuantumVisitor().visit(grammar.parse(text))
+    parsed = parse(text)
     (gate,) = parsed.gates[0]
     assert gate.name == "H"
     assert gate.args == ("0", )
@@ -10,13 +10,13 @@ def test_grammar1():
 
 def test_grammar2():
     text = "|00>"
-    parsed = QuantumVisitor().visit(grammar.parse(text))
+    parsed = parse(text)
     assert parsed.gates == None
     assert parsed.target.bitstring == "00"
 
 def test_grammar3():
     text = "H0 |00>"
-    parsed = QuantumVisitor().visit(grammar.parse(text))
+    parsed = parse(text)
     (gate,) = parsed.gates[0]
     assert gate.name == "H"
     assert gate.args == ("0", )
@@ -24,7 +24,7 @@ def test_grammar3():
 
 def test_grammar4():
     text = "CX01 H0 |00>"
-    parsed = QuantumVisitor().visit(grammar.parse(text))
+    parsed = parse(text)
     (gate,) = parsed.gates[1]
     assert gate.name == "CX"
     assert gate.args == ("01", )
@@ -36,7 +36,7 @@ def test_grammar4():
 
 def test_grammar5():
     text = "CX01 X1 H0.X1 |00>"
-    parsed = QuantumVisitor().visit(grammar.parse(text))
+    parsed = parse(text)
 
     (gate,) = parsed.gates[2]
     assert gate.name == "CX"
@@ -55,14 +55,19 @@ def test_grammar5():
 
 def test_grammar6():
     text = "|-+>"
-    parsed = QuantumVisitor().visit(grammar.parse(text))
+    parsed = parse(text)
     assert parsed.gates == None
     assert parsed.target.bitstring == "-+"
 
 def test_grammar7():
     text = "FOO |0>"
-    parsed = QuantumVisitor().visit(grammar.parse(text))
+    parsed = parse(text)
     gate, = parsed.gates[0]
     assert gate.name == "FOO"
     assert gate.args == ()
     assert parsed.target.bitstring == "0"
+
+def test_grammar8():
+    text = "X0 X0 H0 X0"
+    parsed = parse(text)
+    assert ["X", "H", "X", "X"] == [gate.name for gates in parse("X0 X0 H0 X0").gates for gate in gates]

@@ -1,4 +1,5 @@
 from collections import namedtuple
+from functools import reduce
 
 from parsimonious.grammar import Grammar
 from parsimonious.nodes import NodeVisitor
@@ -33,12 +34,12 @@ class QuantumVisitor(NodeVisitor):
     def visit_circuit(self, node, visited_children):
         circs, (target,) = visited_children
         if len(circs) > 0:
-            kronecker, _ = circs[-1]
-            gates = kronecker.gates
+            gates = reduce(lambda x, y: x+y, [c.gates for c, _ in circs[::-1]])
 
-            for circ in circs[::-1][1:]:
-                kronecker, _ = circ
-                gates += kronecker.gates
+            if target.target is None:
+                return Circuit(
+                gates=target.gates + gates,
+                target=target.target)
 
             return Circuit(
                 gates=gates,
