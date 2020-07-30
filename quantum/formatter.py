@@ -14,7 +14,8 @@ def _sqrt_formatter(value: float):
             return f"√{nom}"
         return str(nom)
     
-    return f"{_to_str(fraction.numerator)}/{_to_str(fraction.denominator)}"
+    sign = "-" if np.sign(value) == -1 else ""
+    return f"{sign}{_to_str(fraction.numerator)}/{_to_str(fraction.denominator)}"
 
 def pprint_fraction(value: float, no_sqrt: bool = False):
     """
