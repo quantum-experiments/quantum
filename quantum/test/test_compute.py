@@ -18,3 +18,7 @@ from quantum.gates import X, H
 ])
 def test_compute(text, state):
     assert np.all(evaluate(text) == state)
+
+def test_double_gate():
+    with pytest.raises(ValueError):
+        evaluate("X1.X1.I0")

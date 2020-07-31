@@ -1,11 +1,14 @@
 from functools import reduce
 
+import logging
 import numpy as np
 
 from quantum.grammar import parse, Qubits
 from quantum.states import bit_states
 from quantum.gates import name_gates, I
-from quantum.formatter import farray
+from quantum.formatter import farray, pretty_gate_sequence
+
+_log = logging.getLogger(__name__)
 
 def bitstring_to_vector(qubits: str):
     """ Get kronecker product of basis vectors for given bitstring """
@@ -34,6 +37,8 @@ def gates_to_unitary(gates, num_qubits):
     """ Get unitary transformation for one or more gates """
     # chain together single qubit gate ops into one unitary transformation
     if all([len(gate.args)==1 and len(gate.args[0]) == 1 for gate in gates]):
+        if len(gates) != len(set(gates)):
+            raise ValueError(f"Gate sequence contains duplicates: {pretty_gate_sequence(gates)}")
         gate_seq = []
         gates_by_indices = {int(gate.args[0]): gate for gate in gates}
         assert all([ind < num_qubits for ind in gates_by_indices]), f"Got invalid index {_list_str(gates_by_indices.keys())}. For {num_qubits} qubits, valid indices are: {_list_str(range(num_qubits))}."
