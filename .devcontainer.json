@@ -1,0 +1,21 @@
+ //devcontainer.json
+{
+    "name": "quantum grammar",
+    "image": "continuumio/anaconda3",
+    "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash",
+        "python.testing.pytestArgs": [
+            "quantum"
+        ],
+        "python.testing.unittestEnabled": false,
+        "python.testing.nosetestsEnabled": false,
+        "python.testing.pytestEnabled": true
+    },
+    "extensions": [
+        "ms-python.python",
+        "brainfit.vscode-importmagic",
+        "davidanson.vscode-markdownlint",
+        "LittleFoxTeam.vscode-python-test-adapter"
+    ],
+    "forwardPorts": [8888]
+}
