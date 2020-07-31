@@ -1,5 +1,7 @@
-from quantum.formatter.fraction import pprint_fraction
 import numpy as np
+
+from quantum.formatter.fraction import pprint_fraction, pretty_farray
+
 
 def _to_qbit(value: int, norm: float, num_qubits: int):
     bin_repr = np.binary_repr(value, num_qubits)
@@ -15,8 +17,21 @@ def pprint_dirac(state: np.ndarray):
 
 class dirac(np.ndarray):
     """ ndarray but with pretty printing of fractions, sqrt values and dirac notation """
+    def _is_1d_vector(self):
+        shape = np.shape(self)
+        if len(shape) == 2:
+            length, width = shape
+            if width == 1:
+                return True
+        return False
+
     def __repr__(self):
-        return str(self)
+        if self._is_1d_vector():
+            return str(self)
+        with pretty_farray():
+            return super(dirac, self).__repr__()
 
     def __str__(self):
-        return pprint_dirac(self)
+        if self._is_1d_vector():
+            return pprint_dirac(self)
+        return super(dirac, self).__str__()
