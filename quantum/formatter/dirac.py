@@ -20,7 +20,7 @@ class dirac(np.ndarray):
     def _is_1d_vector(self):
         shape = np.shape(self)
         if len(shape) == 2:
-            length, width = shape
+            _, width = shape
             if width == 1:
                 return True
         return False
