@@ -54,23 +54,3 @@ class farray(np.ndarray):
     def __str__(self):
         with pretty_farray():
             return super(farray, self).__str__()
-
-def _to_qbit(value: int, norm: float, num_qubits: int):
-    bin_repr = np.binary_repr(value, num_qubits)
-    norm_repr = f"{pprint_fraction(norm)} " if norm != 1 else ""
-    return f"{norm_repr}|{bin_repr}>"
-
-def pretty_dirac(state: np.ndarray):
-    """ pretty print for dirac notation of states """
-    length, width = np.shape(state)
-    num_qubits = int(np.log2(length))
-    assert width == 1, f"Array shape {(length, width)} not supported"
-    return " + ".join(_to_qbit(val, norm, num_qubits) for val, norm in enumerate(state.flatten()) if norm != 0)
-
-def _to_subscript(args: tuple):
-    args_str = ",".join(args)
-    return "_{%s}" %args_str
-
-def pretty_gate_sequence(gates: tuple):
-    """ pretty print for gate sequence """
-    return " ⊗ ".join([f"{gate.name}{_to_subscript(gate.args)}" for gate in gates])
