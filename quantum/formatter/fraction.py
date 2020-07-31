@@ -22,7 +22,8 @@ def _sqrt_formatter(value: float):
         
         sign = "-" if np.sign(value) == -1 else ""
         return f"{sign}{_to_str(fraction.numerator)}/{_to_str(fraction.denominator)}"
-    return f"√{np.round(squared_value, 10)}"
+    # Square root of imaginary value needs parentheses for clarity (e.g. √(0.5j))
+    return f"√({np.round(squared_value, 10)})"
 
 def pprint_fraction(value: float, no_sqrt: bool = False):
     """
@@ -32,13 +33,12 @@ def pprint_fraction(value: float, no_sqrt: bool = False):
     :value: float value
     :no_sqrt: flag for not including sqrt terms
     """
-    if no_sqrt:
-        return _fraction_formatter(value)
+    formatters = [_fraction_formatter, str]
+    if no_sqrt is False:
+        formatters.append(_sqrt_formatter)
 
     return min(
-        _fraction_formatter(value), 
-        _sqrt_formatter(value), 
-        str(value), 
+        [formatter(value) for formatter in formatters], 
         key=lambda x: len(x)
     )
 
