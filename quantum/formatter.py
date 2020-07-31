@@ -57,7 +57,8 @@ class farray(np.ndarray):
 
 def _to_qbit(value: int, norm: float, num_qubits: int):
     bin_repr = np.binary_repr(value, num_qubits)
-    return f"{pprint_fraction(norm)} |{bin_repr}>"
+    norm_repr = f"{pprint_fraction(norm)} " if norm != 1 else ""
+    return f"{norm_repr}|{bin_repr}>"
 
 def pretty_dirac(state: np.ndarray):
     """ pretty print for dirac notation of states """
