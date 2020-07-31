@@ -38,10 +38,19 @@ def gates_to_unitary(gates, num_qubits):
     # chain together single qubit gate ops into one unitary transformation
     if all([len(gate.args)==1 and len(gate.args[0]) == 1 for gate in gates]):
         if len(gates) != len(set(gates)):
-            raise ValueError(f"Gate sequence contains duplicates: {pprint_gate_sequence(gates)}")
+            raise ValueError(f"Gate sequence contains duplicates: \
+                {pprint_gate_sequence(gates)}")
+        all_args = [arg for gate in gates for arg in gate.args]
+        if len(all_args) != len(set(all_args)):
+            raise ValueError(
+                f"Cannot evaluate sequence that acts on the same qubit twice: \
+                    {pprint_gate_sequence(gates)}")
         gate_seq = []
         gates_by_indices = {int(gate.args[0]): gate for gate in gates}
-        assert all([ind < num_qubits for ind in gates_by_indices]), f"Got invalid index {_list_str(gates_by_indices.keys())}. For {num_qubits} qubits, valid indices are: {_list_str(range(num_qubits))}."
+        assert all([ind < num_qubits for ind in gates_by_indices]), f"Got invalid index \
+                {_list_str(gates_by_indices.keys())}. \
+                For {num_qubits} qubits, valid indices are: \
+                {_list_str(range(num_qubits))}."
         for n in range(num_qubits):
             if n in gates_by_indices:
                 gate = gates_by_indices.get(n)
@@ -50,7 +59,8 @@ def gates_to_unitary(gates, num_qubits):
                 gate_seq.append(I)
         return reduce(np.kron, gate_seq)
     # single gate
-    assert len(gates) == 1, f"Cannot get unitary transform for gates {gates} with {num_qubits} qubits."
+    assert len(gates) == 1, f"Cannot get unitary transform for gates {gates} with \
+        {num_qubits} qubits."
     gate, = gates
     return gate_by_name(gate.name, gate.args)
 

@@ -22,3 +22,7 @@ def test_compute(text, state):
 def test_double_gate():
     with pytest.raises(ValueError):
         evaluate("X1.X1.I0")
+
+def test_double_qubit():
+    with pytest.raises(ValueError):
+        evaluate("X0.I0")
