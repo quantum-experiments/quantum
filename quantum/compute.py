@@ -82,7 +82,7 @@ def evaluate_circuit(circuit):
     if circuit.gates is not None:
         args = [int(arg) for arg in all_args(circuit)]
         num_qubits = max(args) + 1
-        return np.array([gates_to_unitary(gates, num_qubits) for gates in circuit.gates])
+        return [gates_to_unitary(gates, num_qubits) for gates in circuit.gates]
 
 def evaluate(line, pretty_print: bool = True):
     """
@@ -96,6 +96,8 @@ def evaluate(line, pretty_print: bool = True):
         shape = np.shape(result)
         if len(shape) == 2:
             return result.view(dirac)
+        elif isinstance(result, list):
+            return [r.view(farray) for r in result]
         else:
             return result.view(farray)
     return result
