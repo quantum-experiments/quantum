@@ -3,19 +3,26 @@ import fractions
 
 def _fraction_formatter(value: float):
     """ pretty print fraction value"""
-    as_fraction = fractions.Fraction(value).limit_denominator()
-    return str(as_fraction)
+    _im, _re = np.imag(value), np.real(value)
+    if _im == 0:
+        as_fraction = fractions.Fraction(_re).limit_denominator()
+        return str(as_fraction)
+    return str(np.round(value, 10))
 
 def _sqrt_formatter(value: float):
     """ pretty print fraction value with sqrt symbol """
-    fraction = fractions.Fraction(value**2).limit_denominator()
-    def _to_str(nom):
-        if nom != 1:
-            return f"√{nom}"
-        return str(nom)
-    
-    sign = "-" if np.sign(value) == -1 else ""
-    return f"{sign}{_to_str(fraction.numerator)}/{_to_str(fraction.denominator)}"
+    squared_value = value**2
+    _im, _re = np.imag(squared_value), np.real(squared_value)
+    if _im == 0:
+        fraction = fractions.Fraction(_re).limit_denominator()
+        def _to_str(nom):
+            if nom != 1:
+                return f"√{nom}"
+            return str(nom)
+        
+        sign = "-" if np.sign(value) == -1 else ""
+        return f"{sign}{_to_str(fraction.numerator)}/{_to_str(fraction.denominator)}"
+    return f"√{np.round(squared_value, 10)}"
 
 def pprint_fraction(value: float, no_sqrt: bool = False):
     """
