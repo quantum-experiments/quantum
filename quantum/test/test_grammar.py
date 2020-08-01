@@ -35,7 +35,7 @@ def test_grammar4():
     assert target.bitstring == "00"
 
 def test_grammar5():
-    text = "CX01 X1 H0.X1 |00>"
+    text = "CX01 X1 H0*X1 |00>"
     parsed = parse(text)
 
     (gate,) = parsed.gates[2]
