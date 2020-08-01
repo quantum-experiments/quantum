@@ -5,5 +5,9 @@ setup(
     packages=find_packages(),
     install_requires=[
         "parsimonious"
-    ]
+    ],
+    extras_require={
+        "examples": ["matplotlib", "jupyter"],
+        "dev": ["pytest", "jupytext"]
+    }
 )

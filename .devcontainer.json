@@ -16,7 +16,8 @@
         "ms-python.python",
         "brainfit.vscode-importmagic",
         "davidanson.vscode-markdownlint",
-        "LittleFoxTeam.vscode-python-test-adapter"
+        "LittleFoxTeam.vscode-python-test-adapter",
+        "bierner.markdown-preview-github-styles"
     ],
     "forwardPorts": [8888]
 }
