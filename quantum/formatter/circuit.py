@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 class Symbols(enum.Enum):
     KRON = " ⨂ "
     DOT = " ∙ "
-    SPACE = " "
+    SPACE = "  "
     NONE = ""
 
 _subscript = {
