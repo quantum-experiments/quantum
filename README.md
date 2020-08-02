@@ -1,4 +1,4 @@
-# Basic quantum grammar
+# Quantum calculator
 
 A `%quantum` magic command for evaluating basic quantum circuit calculations using `numpy`. Conveniently displays vector data in dirac notation and pretty prints array values as squares and fractions where possible.
 
