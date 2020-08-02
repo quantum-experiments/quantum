@@ -1,7 +1,9 @@
 import numpy as np
 
+from quantum.formatter.dirac import dirac
+
 def _state(*values):
-    return np.array([values]).T
+    return np.array([values]).T.view(dirac)
 
 def _norm(state):
     return state / np.linalg.norm(state)
