@@ -1,9 +1,11 @@
 import numpy as np
 
-from quantum.states import zero, one
+from quantum.formatter.fraction import farray
+from quantum.states import one, zero
+
 
 def _gate(*values):
-    return np.array(values)
+    return np.array(values).view(farray)
 
 def _norm(gate):
     return gate / np.linalg.norm(gate, axis = 1, keepdims = True)
