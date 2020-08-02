@@ -9,7 +9,7 @@ from parsimonious.nodes import NodeVisitor
 from quantum.formatter.circuit import (Symbols, pprint_circuit,
                                        pprint_kronecker_product, pprint_matrix)
 from quantum.formatter.dirac import pprint_qubits
-from quantum.gates import num_qubits
+from quantum.gates import _num_qubits
 
 _operators = {
     ".": Symbols.DOT,
@@ -83,7 +83,7 @@ class QuantumVisitor(NodeVisitor):
         label, args = visited_children
         if args:
             args, = args
-            if num_qubits.get(label) > 1 and len(args) == 1:
+            if _num_qubits.get(label) > 1 and len(args) == 1:
                 args = tuple(arg for arg in args[0])
                 assert len(args) == 2, f"Cannot parse arguments '{visited_children[1][0][0]}' for matrix {label}, >2 arguments were found"
             return Matrix(label=label, args=tuple(int(arg) for arg in args))
@@ -102,6 +102,45 @@ class QuantumVisitor(NodeVisitor):
         return visited_children or node.text
 
 
-def parse(command: str) -> Circuit:
+def parse(command: str, expand: bool = True) -> Circuit:
     """ Parse given quantum command """
-    return QuantumVisitor().visit(grammar.parse(command))
+    circuit = QuantumVisitor().visit(grammar.parse(command))
+    if expand:
+        return expand_circuit(circuit)
+    return circuit
+
+def _expand_kronecker(matrices: List[Matrix], num_qubits: int = None):
+    """ Expand the list of matrices to include identity operations for all unassigned qubits """
+    new_matrices, qubits = [], []
+    for n, matrix in enumerate(matrices):
+        if matrix.args == ():
+            matrix = Matrix(label=matrix.label, args=(n,))
+        qubits += matrix.args
+        new_matrices.append(matrix)
+    
+    assert len(qubits) == len(set(qubits)), f"Qubit argument list {qubits} contains duplicates"
+
+    # Check if args are consistent with number of qubits
+    if num_qubits is not None:
+        assert max(qubits) < num_qubits, f"Values in qubit argument list {qubits} cannot exceed max index {num_qubits-1}"
+    else:
+        num_qubits = max(qubits) + 1
+
+    new_matrices += [Matrix("I", (arg,)) for arg in set(range(num_qubits)) - set(qubits)]
+
+    # Sort matrices by qubit number
+    return sorted(new_matrices, key=lambda x: x.args[0])
+
+def expand_circuit(circuit: Circuit) -> Circuit:
+    """ Expand circuit with identity gates for all unassigned qubits """
+    if circuit.target:
+        num_qubits = len(circuit.target.bitstring)
+    else:
+        argss = [_m.args or (n, ) for kp in circuit.kronecker_products for n, _m in enumerate(kp.matrices)]
+        num_qubits = max([arg for args in argss for arg in args]) + 1
+
+    kronecker_products = tuple(
+        KroneckerProductOp(matrices=_expand_kronecker(kp.matrices, num_qubits), operator=kp.operator) 
+        for kp in circuit.kronecker_products
+    )
+    return Circuit(kronecker_products=kronecker_products, target=circuit.target)

@@ -43,7 +43,7 @@ name_gates = {
     "CNOT21": CNOT21,
 }
 
-num_qubits = {
+_num_qubits = {
     "I": 1,
     "H": 1,
     "X": 1,

@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 
-from quantum.compute import evaluate
+from quantum.evaluate import evaluate
 from quantum.states import one, zero, plus, minus, _norm
 from quantum.gates import X, H
 

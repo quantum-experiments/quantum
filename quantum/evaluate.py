@@ -1,12 +1,13 @@
+import logging
 from functools import reduce
 
-import logging
 import numpy as np
 
-from quantum.grammar import parse, Qubits
-from quantum.states import bit_states
-from quantum.gates import name_gates, I
 from quantum.formatter import dirac, farray, pprint_kronecker_product
+from quantum.formatter.circuit import Symbols
+from quantum.gates import I, name_gates
+from quantum.grammar import Qubits, parse
+from quantum.states import bit_states
 
 _log = logging.getLogger(__name__)
 
@@ -20,8 +21,8 @@ def gate_by_name(name: str, args: tuple):
     if name == "CX":
         name = "CNOT"
     if name == "CNOT":
-        control_target, = args
-        gate_matrix = name_gates.get(name + control_target)
+        control, target = args
+        gate_matrix = name_gates.get(f"{name}{control}{target}")
     else:
         gate_matrix = name_gates.get(name)
 
@@ -36,7 +37,7 @@ def _list_str(values):
 def gates_to_unitary(gates, num_qubits):
     """ Get unitary transformation for one or more gates """
     # chain together single qubit gate ops into one unitary transformation
-    if all([len(gate.args)==1 and len(gate.args[0]) == 1 for gate in gates]):
+    if all([len(gate.args)==1 and len(gate.args) == 1 for gate in gates]):
         if len(gates) != len(set(gates)):
             raise ValueError(f"Gate sequence contains duplicates: \
                 {pprint_kronecker_product(gates)}")
@@ -54,7 +55,7 @@ def gates_to_unitary(gates, num_qubits):
         for n in range(num_qubits):
             if n in gates_by_indices:
                 gate = gates_by_indices.get(n)
-                gate_seq.append(gate_by_name(gate.name, gate.args))
+                gate_seq.append(gate_by_name(gate.label, gate.args))
             else:
                 gate_seq.append(I)
         return reduce(np.kron, gate_seq)
@@ -62,27 +63,36 @@ def gates_to_unitary(gates, num_qubits):
     assert len(gates) == 1, f"Cannot get unitary transform for gates {gates} with \
         {num_qubits} qubits."
     gate, = gates
-    return gate_by_name(gate.name, gate.args)
+    return gate_by_name(gate.label, gate.args)
 
 def all_args(circuit):
     """ get a flat list of all arguments passed to the circuit """
-    return [arg for gates in circuit.gates for gate in gates for arg in gate.args]
+    return [arg for kp in circuit.kronecker_products for gate in kp.matrices for arg in gate.args]
 
 def evaluate_circuit(circuit):
     """ evaluate circuit and return qubit result """
     if circuit.target is not None and circuit.target.bitstring != "":
         qubits = bitstring_to_vector(circuit.target.bitstring)
-        if circuit.gates is None:
+        if circuit.kronecker_products is None:
             return qubits
         num_qubits = len(circuit.target.bitstring)
-        for gates in circuit.gates:
-            qubits = np.dot(gates_to_unitary(gates, num_qubits), qubits)
-        return qubits
-    
-    if circuit.gates is not None:
+    else:
         args = [int(arg) for arg in all_args(circuit)]
         num_qubits = max(args) + 1
-        return [gates_to_unitary(gates, num_qubits) for gates in circuit.gates]
+
+    if circuit.kronecker_products is not None:
+        unitaries = [gates_to_unitary(kp.matrices, num_qubits) for kp in circuit.kronecker_products]
+
+    if circuit.target is None:
+        result, dot = [], False
+        for kp, uni in zip(circuit.kronecker_products, unitaries):
+            if dot:
+                result.append(np.dot(result.pop(), uni))
+            else:
+                result.append(uni)
+            dot = kp.operator == Symbols.DOT            
+        return result
+    return reduce(np.dot, unitaries + [qubits])
 
 def evaluate(line, pretty_print: bool = True):
     """
@@ -90,7 +100,7 @@ def evaluate(line, pretty_print: bool = True):
     
     :pretty_print: flag to turn pretty printing off
     """
-    circuit = parse(line)
+    circuit = parse(line, expand=True)
     result = evaluate_circuit(circuit)
     if pretty_print:
         shape = np.shape(result)
