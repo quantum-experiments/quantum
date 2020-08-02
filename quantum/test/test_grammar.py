@@ -70,4 +70,4 @@ def test_grammar7():
 def test_grammar8():
     text = "X0 X0 H0 X0"
     parsed = parse(text)
-    assert ["X", "H", "X", "X"] == [gate.name for gates in parse("X0 X0 H0 X0").gates for gate in gates]
+    assert ["X", "H", "X", "X"] == [gate.name for gates in parse("X0 X0 H0 X0").gates for gate in parsed.tensors]

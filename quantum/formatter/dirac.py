@@ -2,11 +2,13 @@ import numpy as np
 
 from quantum.formatter.fraction import pprint_fraction, pretty_farray
 
+def pprint_qubits(bitstring: str):
+    return f"|{bitstring}⟩"
 
 def _to_qbit(value: int, norm: float, num_qubits: int):
-    bin_repr = np.binary_repr(value, num_qubits)
+    bitstring = np.binary_repr(value, num_qubits)
     norm_repr = f"{pprint_fraction(norm)} " if norm != 1 else ""
-    return f"{norm_repr}|{bin_repr}>"
+    return f"{norm_repr}{pprint_qubits(bitstring)}"
 
 def pprint_dirac(state: np.ndarray):
     """ pretty print for dirac notation of states """

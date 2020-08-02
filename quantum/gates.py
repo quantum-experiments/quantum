@@ -26,6 +26,7 @@ CNOT102 = np.kron(CNOT10,I)
 T = np.array([[1, 0], [0, np.exp(1j*np.pi/4)]])
 TD = np.conjugate(T)
 
+
 name_gates = {
     "I": I,
     "H": H,
@@ -40,6 +41,18 @@ name_gates = {
     "CNOT102": CNOT102,
     "CNOT12": CNOT12,
     "CNOT21": CNOT21,
+}
+
+num_qubits = {
+    "I": 1,
+    "H": 1,
+    "X": 1,
+    "Y": 1,
+    "Z": 1,
+    "T": 1,
+    "TD": 1,
+    "CNOT": 2,
+    "CX": 2,
 }
 
 def add_gate(label: str, value: np.ndarray, overwrite: bool = False):

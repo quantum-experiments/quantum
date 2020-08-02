@@ -6,7 +6,7 @@ import numpy as np
 from quantum.grammar import parse, Qubits
 from quantum.states import bit_states
 from quantum.gates import name_gates, I
-from quantum.formatter import dirac, farray, pprint_gate_sequence
+from quantum.formatter import dirac, farray, pprint_kronecker_product
 
 _log = logging.getLogger(__name__)
 
@@ -39,12 +39,12 @@ def gates_to_unitary(gates, num_qubits):
     if all([len(gate.args)==1 and len(gate.args[0]) == 1 for gate in gates]):
         if len(gates) != len(set(gates)):
             raise ValueError(f"Gate sequence contains duplicates: \
-                {pprint_gate_sequence(gates)}")
+                {pprint_kronecker_product(gates)}")
         all_args = [arg for gate in gates for arg in gate.args]
         if len(all_args) != len(set(all_args)):
             raise ValueError(
                 f"Cannot evaluate sequence that acts on the same qubit twice: \
-                    {pprint_gate_sequence(gates)}")
+                    {pprint_kronecker_product(gates)}")
         gate_seq = []
         gates_by_indices = {int(gate.args[0]): gate for gate in gates}
         assert all([ind < num_qubits for ind in gates_by_indices]), f"Got invalid index \
