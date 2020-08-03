@@ -22,6 +22,7 @@ def gate_by_name(name: str, args: tuple):
         name = "CNOT"
     if name == "CNOT":
         control, target = args
+        control, target = control - min(args), target - min(args)
         gate_matrix = name_gates.get(f"{name}{control}{target}")
     else:
         gate_matrix = name_gates.get(name)
@@ -36,34 +37,17 @@ def _list_str(values):
 
 def gates_to_unitary(gates, num_qubits):
     """ Get unitary transformation for one or more gates """
-    # chain together single qubit gate ops into one unitary transformation
-    if all([len(gate.args)==1 and len(gate.args) == 1 for gate in gates]):
-        if len(gates) != len(set(gates)):
-            raise ValueError(f"Gate sequence contains duplicates: \
+    # kronecker product of matrices into one unitary transformation
+    if len(gates) != len(set(gates)):
+        raise ValueError(f"Gate sequence contains duplicates: \
+            {pprint_kronecker_product(gates)}")
+    all_args = [arg for gate in gates for arg in gate.args]
+    if len(all_args) != len(set(all_args)):
+        raise ValueError(
+            f"Cannot evaluate sequence that acts on the same qubit twice: \
                 {pprint_kronecker_product(gates)}")
-        all_args = [arg for gate in gates for arg in gate.args]
-        if len(all_args) != len(set(all_args)):
-            raise ValueError(
-                f"Cannot evaluate sequence that acts on the same qubit twice: \
-                    {pprint_kronecker_product(gates)}")
-        gate_seq = []
-        gates_by_indices = {int(gate.args[0]): gate for gate in gates}
-        assert all([ind < num_qubits for ind in gates_by_indices]), f"Got invalid index \
-                {_list_str(gates_by_indices.keys())}. \
-                For {num_qubits} qubits, valid indices are: \
-                {_list_str(range(num_qubits))}."
-        for n in range(num_qubits):
-            if n in gates_by_indices:
-                gate = gates_by_indices.get(n)
-                gate_seq.append(gate_by_name(gate.label, gate.args))
-            else:
-                gate_seq.append(I)
-        return reduce(np.kron, gate_seq)
-    # single gate
-    assert len(gates) == 1, f"Cannot get unitary transform for gates {gates} with \
-        {num_qubits} qubits."
-    gate, = gates
-    return gate_by_name(gate.label, gate.args)
+    gate_seq = [gate_by_name(gate.label, gate.args) for gate in gates]
+    return reduce(np.kron, gate_seq)
 
 def all_args(circuit):
     """ get a flat list of all arguments passed to the circuit """
