@@ -4,11 +4,10 @@ setup(
     version="0.1",
     packages=find_packages(),
     install_requires=[
-        "parsimonious",
-        "sympy"
+        "parsimonious"
     ],
     extras_require={
-        "examples": ["matplotlib", "jupyter"],
+        "examples": ["matplotlib", "jupyter", "sympy"],
         "dev": ["pytest", "jupytext"]
     }
 )

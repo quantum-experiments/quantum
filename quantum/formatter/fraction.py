@@ -1,5 +1,4 @@
 import numpy as np
-import sympy as sp
 import fractions
 
 def _str_fraction_format_fn(value: float):
@@ -118,4 +117,4 @@ class farray(np.ndarray):
             return super(farray, self).__str__()
 
     def _repr_latex_(self):
-        return sp.Matrix(self)._repr_latex_()
+        return array_to_latex(self)
