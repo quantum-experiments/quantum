@@ -2,7 +2,7 @@ import numpy as np
 
 from quantum.formatter.fraction import pprint_fraction, farray
 
-def pprint_qubits(bitstring: str, latex: bool):
+def pprint_qubits(bitstring: str, latex: bool = False):
     if latex:
         return f"\\lvert{bitstring}\\rangle"
     return f"|{bitstring}⟩"
