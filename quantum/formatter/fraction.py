@@ -72,6 +72,8 @@ def pprint_fraction(value: float, no_sqrt: bool = False, width: int = None, late
 
     :value: float value
     :no_sqrt: flag for not including sqrt terms
+    :width: cell width
+    :latex: flag to return value in latex format
     """
     formatters = [_fraction_formatter]
     if not no_sqrt:
@@ -99,6 +101,11 @@ def pretty_farray(no_sqrt: bool = False):
     keys = ["float", "complex_kind"]
     kwargs = {"linewidth": 200}
     return np.printoptions(formatter={key: lambda x: pprint_fraction(x, no_sqrt, width=6) for key in keys}, **kwargs)
+
+def array_to_latex(matrix, no_sqrt: bool = False):
+    """ Convert array to Latex string """
+    inner = " \\\\ ".join([" & ".join([pprint_fraction(col, latex=True) for col in row]) for row in matrix])
+    return "$$\\begin{bmatrix} %s \\end{bmatrix}$$" % inner
 
 class farray(np.ndarray):
     """ ndarray but with pretty printing of fractions and sqrt values """
