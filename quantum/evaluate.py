@@ -6,7 +6,7 @@ import numpy as np
 from quantum.formatter import dirac, farray, pprint_kronecker_product
 from quantum.formatter.circuit import Symbols
 from quantum.gates import I, name_gates
-from quantum.grammar import Qubits, parse
+from quantum.grammar import Circuit, Qubits, parse
 from quantum.states import bit_states
 
 _log = logging.getLogger(__name__)
@@ -78,20 +78,34 @@ def evaluate_circuit(circuit):
         return result
     return reduce(np.dot, unitaries + [qubits])
 
-def evaluate(line, pretty_print: bool = True):
+def pprint_result(result: np.ndarray):
+    """ Pretty print the result of a circuit evaluation """
+    shape = np.shape(result)
+    if len(shape) == 2:
+        return result.view(dirac)
+    elif isinstance(result, list):
+        return [r.view(farray) for r in result]
+    else:
+        return result.view(farray)
+
+def evaluate(line: str = None, circuit: Circuit = None, pretty_print: bool = True):
     """
     evaluate line
     
+    :line: Line to evaluate
+    :circuit: Parsed circuit to evaluate
     :pretty_print: flag to turn pretty printing off
     """
-    circuit = parse(line, expand=True)
+    if circuit is None:
+        if line is None:
+            raise TypeError("evaluate() missing 1 required positional argument: 'line'")
+        circuit = parse(line, expand=True)
+    elif line is not None:
+        raise TypeError("evaluate() received both line and circuit, only one required")
+
     result = evaluate_circuit(circuit)
+
     if pretty_print:
-        shape = np.shape(result)
-        if len(shape) == 2:
-            return result.view(dirac)
-        elif isinstance(result, list):
-            return [r.view(farray) for r in result]
-        else:
-            return result.view(farray)
+        return pprint_result(result)
+
     return result
