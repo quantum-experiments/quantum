@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <script type="text/javascript">
+          // set the pyodide files URL (packages.json, pyodide.asm.data etc)
+          window.languagePluginUrl = 'https://pyodide-cdn2.iodide.io/v0.15.0/full/';
+      </script>
+      <script src="https://pyodide-cdn2.iodide.io/v0.15.0/full/pyodide.js"></script>
+  </head>
+  <body>
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']]
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+        </script>
+        <script type="text/javascript" id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+        </script>
+    Pyodide test page <br>
+    \begin{bmatrix}
+    1 & 2 \\
+    1 & 0 \\
+    \end{bmatrix}
+    <br>
+    Open your browser console to see pyodide output
+
+    <div id="math">bar</div>
+    <div id="textfield">foo</div>
+  </body>
+
+  <script type="text/javascript">
+    const math = document.getElementById("math");
+    math.innerHTML = '$$\\begin{bmatrix} 1 & 2 \\end{bmatrix}$$';
+  </script>
+
+  <script type="text/javascript">
+    languagePluginLoader.then(() => {
+        pyodide.loadPackage(["numpy", "micropip"]).then(()=> {
+            pyodide.runPythonAsync("import micropip").then(()=>{
+                pyodide.runPythonAsync("micropip.install('http://localhost:8080/parsimonious-0.8.1-py3-none-any.whl')").then(() => {
+                    pyodide.runPythonAsync("micropip.install('http://localhost:8080/quantum-0.1-py3-none-any.whl')").then(() => {
+                        pyodide.runPythonAsync("import quantum").then(()=>{
+                            pyodide.runPython("from quantum.formatter.fraction import array_to_latex");
+                            pyodide.runPython(`
+                            def array_to_latex1(matrix, no_sqrt: bool = False):
+                                inner = " \\\\\\ ".join([" & ".join([str(col) for col in row]) for row in matrix])
+                                return "$$\\\\begin{bmatrix} %s \\\\end{bmatrix}$$" % inner
+                            `);
+                            pyodide.runPython(`my_string = array_to_latex([[0,1],[1,0]])`);
+                            pyodide.runPython(`my_string1 = array_to_latex1([[0,1],[1,0]])`);
+                            const textfield = document.getElementById("textfield");
+                            textfield.innerHTML = pyodide.globals.my_string;
+                            MathJax.typeset();
+                            console.log(pyodide.globals.my_string);
+                        });
+                    });
+                });
+            })
+        });
+    });
+  </script>
+
+</html>
