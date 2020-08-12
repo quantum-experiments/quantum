@@ -17,7 +17,11 @@ if sys.version_info < (3, 7, 5):
 
 
 if __name__ == '__main__':
-    port = 8080
+    port = 8008
     with socketserver.TCPServer(("", port), Handler) as httpd:
-        print("Serving at: http://127.0.0.1:{}".format(port))
-        httpd.serve_forever()
+        try:
+            print("Serving at: http://127.0.0.1:{}".format(port))
+            httpd.serve_forever()
+        except Exception as e:
+            print(e)
+            httpd.shutdown()
