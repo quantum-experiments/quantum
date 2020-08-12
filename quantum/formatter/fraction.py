@@ -32,37 +32,40 @@ def _str_sqrt(nom):
         return f"√{nom}"
     return str(nom)
 
-def _latex_sqrt(nom):
-    return "\\sqrt{%s}" % nom
+def _latex_sqrt(nom, i: str = ""):
+    return "\\sqrt{%s}{%s}" % nom, i
 
-def _str_sqrt_format_fn(value: float):
+def _str_sqrt_format_fn(value: float, i: str):
     fraction = fractions.Fraction(value).limit_denominator()
-    return f"{_str_sqrt(fraction.numerator)}/{_str_sqrt(fraction.denominator)}"
+    numerator = _str_sqrt(fraction.numerator) if fraction.numerator != 1 else (i or "1")
+    denominator = _str_sqrt(fraction.denominator)
+    return f"{numerator}/{denominator}"
 
-def _latex_sqrt_format_fn(value: float):
+def _latex_sqrt_format_fn(value: float, i: str):
     frac = fractions.Fraction(value).limit_denominator()
     if frac.denominator != 1:
-        numerator = _latex_sqrt(frac.numerator) if frac.numerator != 1 else "1"
+        numerator = _latex_sqrt(frac.numerator) if frac.numerator != 1 else (i or "1")
         denominator = _latex_sqrt(frac.denominator)
         return _latex_frac(numerator, denominator)
-    return _latex_sqrt(frac.numerator)
+    return _latex_sqrt(frac.numerator, i)
 
 def _sqrt_formatter(value: float, latex: bool = False):
     """ pretty print fraction value with sqrt symbol """
     format_fn = _latex_sqrt_format_fn if latex else _str_sqrt_format_fn
     squared_value = value**2
-    _im, _re = np.imag(squared_value), np.real(squared_value)
+    _im, _re = np.imag(value), np.real(value)
+    sign = np.sign(value)
 
     if np.round(_im, 10) == 0:
-        value, i, sign = _re, "", np.sign(_re)
+        squared_value, i = _re**2, ""
     elif np.round(_re, 10) == 0:
-        value, i, sign = _im, "i", np.sign(_im)
+        squared_value, i = _im**2, "i"
     else:
         # Skip formatting square root of imaginary value (e.g. √(1/2i))
         return _fraction_formatter(value, latex)
 
     sign = "-" if sign < 0 else ""
-    return f"{sign}{format_fn(value)}{i}"
+    return f"{sign}{format_fn(squared_value, i)}"
 
 def pprint_fraction(value: float, no_sqrt: bool = False, width: int = None, latex: bool = False):
     """
