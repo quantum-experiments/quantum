@@ -33,7 +33,7 @@ def _str_sqrt(nom):
     return str(nom)
 
 def _latex_sqrt(nom, i: str = ""):
-    return "\\sqrt{%s}{%s}" % nom, i
+    return "\\sqrt{%s}{%s}" % (nom, i)
 
 def _str_sqrt_format_fn(value: float, i: str):
     fraction = fractions.Fraction(value).limit_denominator()
