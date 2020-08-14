@@ -1,29 +1,34 @@
 import numpy as np
 import fractions
 
-def _str_fraction_format_fn(value: float):
+def _str_fraction_format_fn(value: float, i: str = ""):
     return str(fractions.Fraction(value).limit_denominator())
 
 def _latex_frac(numerator: str, denominator: str):
     return "\\frac{%s}{%s}" % (numerator, denominator)
 
-def _latex_fraction_format_fn(value: float):
+def _fraction_format_fn(value: float, latex: bool = False, i: str = ""):
     frac = fractions.Fraction(value).limit_denominator()
+    numerator = f"{frac.numerator}{i}" if frac.numerator != 1 else (i or "1")
     if frac.denominator != 1:
-        return _latex_frac(frac.numerator, frac.denominator)
-    return str(frac.numerator)
+        if latex:
+            return _latex_frac(numerator, frac.denominator)
+        else:
+            return f"{numerator}/{frac.denominator}"
+    return str(numerator)
 
 def _fraction_formatter(value: float, latex: bool = False):
     """ pretty print fraction value"""
-    format_fn = _latex_fraction_format_fn if latex else _str_fraction_format_fn
     _im, _re = np.imag(value), np.real(value)
     if np.round(_im, 10) == 0:
-        return format_fn(_re)
+        return _fraction_format_fn(_re, latex)
     elif np.round(_re, 10) == 0:
-        return f"{format_fn(_im)}i"
+        sign = np.sign(_im)
+        sign = "-" if sign < 0 else ""
+        return f"{sign}{_fraction_format_fn(np.abs(_im), latex, 'i')}"
     else:
-        as_fraction_re = f"{format_fn(_re)}" if _re != 0 else ""
-        as_fraction_im = f"{format_fn(np.abs(_im))}i"
+        as_fraction_re = f"{_fraction_format_fn(_re, latex)}" if _re != 0 else ""
+        as_fraction_im = f"{_fraction_format_fn(np.abs(_im), latex, 'i')}"
         op = "+" if _im > 0 else "-"
         return f"({as_fraction_re}{op}{as_fraction_im})"
 

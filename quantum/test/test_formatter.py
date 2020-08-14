@@ -7,4 +7,5 @@ def test_pprint():
     assert pprint_fraction(1/np.sqrt(2)) == "1/√2"
     assert pprint_fraction(-1/np.sqrt(2)) == "-1/√2"
     assert pprint_fraction(1j/np.sqrt(2)) == "i/√2"
-    assert pprint_fraction(500j/409) == "500/409i"
+    assert pprint_fraction(500j/409) == "500i/409"
+    assert pprint_fraction(1j) == "i"
